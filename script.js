@@ -83,7 +83,7 @@
         }
         try {
             svgDoc = await loadSVGMap('world.svg');
-            console.log('✅ World map SVG loaded successfully.');
+            console.log('World map SVG loaded successfully.');
         } catch (e) {
             console.warn('Could not load world.svg. Map feature will be unavailable.', e);
         }
@@ -462,7 +462,7 @@
                 }
             }
         });
-        console.log('✅ SVG map injected.');
+        console.log('SVG map injected.');
     }
 
     async function highlightAndZoomToCountry(regionCode) {
@@ -631,9 +631,9 @@
             { icon:'fa-solid fa-language',         label:'Language',       value:languageEntry ? languageEntry.name : (user.language||'N/A') },
             { icon:'fa-solid fa-calendar-plus',    label:'Created',        value:formatUnixTimestamp(user.createTime) },
             { icon:'fa-solid fa-calendar-check',   label:'Nick Modified',  value:formatUnixTimestamp(user.nickNameModifyTime) },
-            { icon:'fa-solid fa-certificate',      label:'Verified',       value:user.verified?'Yes ✅':'No' },
-            { icon:'fa-solid fa-shield-halved',    label:'Private',        value:user.privateAccount?'Yes 🔒':'No' },
-            { icon:'fa-solid fa-mask',             label:'Secret',         value:user.secret?'Yes 👁':'No' },
+            { icon:'fa-solid fa-certificate',      label:'Verified',       value:user.verified?'Yes':'No' },
+            { icon:'fa-solid fa-shield-halved',    label:'Private',        value:user.privateAccount?'Yes':'No' },
+            { icon:'fa-solid fa-mask',             label:'Secret',         value:user.secret?'Yes':'No' },
             { icon:'fa-solid fa-fingerprint',      label:'secUid',         value:user.secUid||'N/A', mono:true },
         ];
         detailGrid.innerHTML = '';
