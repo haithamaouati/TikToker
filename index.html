@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikToker — TikTok User Scraper</title>
+
+    <!-- Favicon (TikTok icon as SVG) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z' fill='%23fff'/%3E%3C/svg%3E">
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Scroll Toggle Button (floating) -->
+    <button class="scroll-toggle-btn" id="scrollToggleBtn" title="Scroll to top / bottom" aria-label="Scroll toggle">
+        <i class="fa-solid fa-angles-down"></i>
+    </button>
+
+    <!-- Hidden file input for importing JSON -->
+    <input type="file" id="importFileInput" accept=".json" style="display:none;">
+
+    <div class="container">
+        <!-- ═══ Header + Theme Toggle ═══ -->
+        <header class="header">
+            <div class="theme-toggle-wrapper">
+                <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+            <div class="logo-icon" aria-hidden="true">
+                <i class="fa-brands fa-tiktok"></i>
+            </div>
+            <h1>TikToker</h1>
+            <p>TikTok User Scraper</p>
+        </header>
+
+        <!-- ═══ FAQ Collapsible ═══ -->
+        <details class="info-details">
+            <summary class="info-summary">
+                <i class="fa-solid fa-circle-question"></i> Frequently Asked Questions
+                <i class="fa-solid fa-chevron-down summary-chevron"></i>
+            </summary>
+            <div class="info-content">
+                <div class="alert alert-tip">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <div>
+                        <strong>Tip: How do I use the website?</strong><br>
+                        It's super simple! Just enter the TikTok username you want to search for and click the search button. We'll show you all the details of the account, including whether it's public or private.
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- ═══ Input Card ═══ -->
+        <div class="main-card" id="mainCard">
+            <form id="scrapeForm" autocomplete="off">
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <span class="at-symbol">@</span>
+                        <input
+                            type="text"
+                            id="usernameInput"
+                            placeholder="username (e.g. eyas_dz)"
+                            aria-label="TikTok username"
+                            autofocus
+                        >
+                    </div>
+                    <button type="submit" class="btn-scrape" id="scrapeBtn" title="Search" aria-label="Search">
+                        <span class="btn-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <span class="spinner-inline"></span>
+                    </button>
+                    <button type="button" class="btn-scrape btn-import" id="btnImportAlways" title="Import JSON" aria-label="Import JSON">
+                        <i class="fa-solid fa-file-import"></i>
+                    </button>
+                </div>
+            </form>
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+
+        <!-- ═══ Results Container ═══ -->
+        <div class="results-container" id="resultsContainer">
+
+            <!-- Profile Card -->
+            <div class="profile-card" id="profileCard">
+                <div class="download-btn-wrapper">
+                    <button class="btn-action" id="btnDownload" title="Download user data as JSON">
+                        <i class="fa-solid fa-download"></i> Export JSON
+                    </button>
+                    <button class="btn-action" id="btnShare" title="Copy shareable link">
+                        <i class="fa-solid fa-share-nodes"></i> Share Link
+                    </button>
+                    <button class="btn-action" id="btnImport" title="Import user data from JSON file">
+                        <i class="fa-solid fa-file-import"></i> Import JSON
+                    </button>
+                </div>
+                <div class="avatar-container" id="avatarContainer" title="Click to view full size">
+                    <img id="avatarImg" src="" alt="Avatar" loading="lazy">
+                    <div class="verified-badge" id="verifiedBadge" style="display:none;" title="Verified Account">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <div class="display-name"><span id="displayName">—</span></div>
+                    <div class="username-handle" id="usernameHandle">—</div>
+                    <div class="bio" id="bioText">—</div>
+                    <a class="bio-link" id="bioLink" href="#" target="_blank" rel="noopener noreferrer" style="display:none;"></a>
+                    <div class="badge-row" id="badgeRow"></div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid" id="statsGrid"></div>
+
+            <!-- Additional Details -->
+            <div class="detail-card" id="detailCard">
+                <h3><i class="fa-solid fa-circle-info"></i> Additional Details</h3>
+                <div class="detail-grid" id="detailGrid"></div>
+            </div>
+
+            <!-- ═══ World Map Card ═══ -->
+            <div class="map-card" id="mapCard">
+                <div class="map-header">
+                    <h3><i class="fa-solid fa-earth-americas"></i> User's Country on World Map</h3>
+                    <span class="map-country-label" id="mapCountryLabel"></span>
+                </div>
+                <div class="map-wrapper" id="mapWrapper">
+                    <!-- SVG map is injected here by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ Avatar Preview Modal ═══ -->
+        <div class="avatar-modal-overlay" id="avatarModalOverlay">
+            <div class="avatar-modal-card">
+                <button class="avatar-modal-close" id="avatarModalClose">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+                <img id="avatarModalImg" src="" alt="Profile Picture">
+                <a class="btn-action avatar-download-btn" id="avatarModalDownload" download>
+                    <i class="fa-solid fa-download"></i> Download Picture
+                </a>
+            </div>
+        </div>
+
+        <!-- ═══ Developer & Tester Collapsible ═══ -->
+        <details class="dev-details">
+            <summary class="dev-summary">
+                <i class="fa-solid fa-code"></i> Developer & Tester
+                <i class="fa-solid fa-chevron-down summary-chevron"></i>
+            </summary>
+            <!-- Haitham Aouati -->
+            <div class="dev-card">
+                <img class="dev-avatar" src="https://raw.githubusercontent.com/haithamaouati/haithamaouati/refs/heads/main/avatar.png" alt="Haitham Aouati" loading="lazy">
+                <div class="dev-info">
+                    <h4>Haitham Aouati</h4>
+                    <p>"I think like an interpreter, act like a compiler."</p>
+                    <div class="dev-links">
+                        <a href="https://github.com/haithamaouati" target="_blank" rel="noopener noreferrer" class="dev-icon-link" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                        <a href="https://t.me/haithamaouati" target="_blank" rel="noopener noreferrer" class="dev-icon-link" aria-label="Telegram"><i class="fa-brands fa-telegram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <!-- Separator -->
+            <hr style="border: none; border-top: 1px solid var(--border-light); margin: 16px 24px;">
+            <!-- Reem Aouati -->
+            <div class="dev-card" style="padding-top: 0;">
+                <img class="dev-avatar" src="https://raw.githubusercontent.com/reemaouati/reemaouati/refs/heads/main/avatar.png" alt="Reem Aouati" loading="lazy">
+                <div class="dev-info">
+                    <h4>Reem Aouati</h4>
+                    <p>"Making cute things with logic"</p>
+                    <div class="dev-links">
+                        <a href="https://github.com/reemaouati" target="_blank" rel="noopener noreferrer" class="dev-icon-link" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- ═══ Footer ═══ -->
+        <p class="footer-note">
+            Developed by <strong>Haitham Aouati</strong>
+        </p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
