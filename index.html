@@ -16,6 +16,9 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <!-- flag-icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.11.0/css/flag-icons.min.css">
+
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -120,6 +123,37 @@
 
             <!-- Stats Grid -->
             <div class="stats-grid" id="statsGrid"></div>
+
+            <!-- Name Analysis Card -->
+            <details class="name-analysis-details" id="nameAnalysisSection" style="display:none;">
+                <summary class="info-summary">
+                    <i class="fa-solid fa-fingerprint"></i> Name Analysis
+                    <i class="fa-solid fa-chevron-down summary-chevron"></i>
+                </summary>
+                <div class="name-analysis-grid" id="nameAnalysisGrid">
+                    <!-- Gender Result -->
+                    <div class="name-card" id="genderCard">
+                        <div class="name-card-title"><i class="fa-solid fa-venus-mars"></i> Gender</div>
+                        <div class="name-card-body" id="genderContent">
+                            <span class="loading-text">Analyzing...</span>
+                        </div>
+                    </div>
+                    <!-- Age Result -->
+                    <div class="name-card" id="ageCard">
+                        <div class="name-card-title"><i class="fa-solid fa-cake-candles"></i> Age</div>
+                        <div class="name-card-body" id="ageContent">
+                            <span class="loading-text">Analyzing...</span>
+                        </div>
+                    </div>
+                    <!-- Nationality Result -->
+                    <div class="name-card" id="nationalityCard">
+                        <div class="name-card-title"><i class="fa-solid fa-flag"></i> Nationality</div>
+                        <div class="name-card-body" id="nationalityContent">
+                            <span class="loading-text">Analyzing...</span>
+                        </div>
+                    </div>
+                </div>
+            </details>
 
             <!-- Additional Details -->
             <div class="detail-card" id="detailCard">
