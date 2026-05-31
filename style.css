@@ -202,7 +202,7 @@ body {
 .header h1 { font-size:clamp(1.5rem,3vw,1.8rem); font-weight:700; letter-spacing:-0.02em; color:var(--text-primary); margin-bottom:4px; }
 .header p { font-size:0.95rem; color:var(--text-secondary); font-weight:400; letter-spacing:-0.01em; }
 
-/* ═══ FAQ Collapsible (no green left border) ═══ */
+/* ═══ FAQ Collapsible ═══ */
 .info-details {
     background:var(--card-bg);
     border:1px solid var(--border-light);
@@ -266,6 +266,86 @@ body {
 [data-theme="dark"] .alert-tip {
     background:#0a2e1a;
     color:#6ee7b7;
+}
+
+/* ═══ Name Analysis Card ═══ */
+.name-analysis-details {
+    background:var(--card-bg);
+    border:1px solid var(--border-light);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);
+    transition:all var(--transition);
+    overflow:hidden;
+}
+.name-analysis-details[open] {
+    box-shadow:var(--shadow-md);
+}
+.name-analysis-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+    gap:12px;
+    padding:0 24px 20px 24px;
+}
+.name-card {
+    background:var(--input-bg);
+    border:1px solid var(--border-light);
+    border-radius:var(--radius);
+    padding:16px;
+    text-align:center;
+    transition:all 0.15s ease;
+}
+.name-card:hover {
+    border-color:var(--input-border-focus);
+    box-shadow:var(--shadow-sm);
+}
+.name-card-title {
+    font-size:0.75rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--text-tertiary);
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+}
+.name-card-title i {
+    color:var(--detail-icon-color);
+}
+.name-card-body {
+    font-size:0.95rem;
+    font-weight:600;
+    color:var(--text-primary);
+}
+.name-card-body .loading-text {
+    color:var(--text-tertiary);
+    font-style:italic;
+}
+.name-card-body .highlight {
+    font-size:1.4rem;
+    font-weight:700;
+    color:var(--accent);
+    display:block;
+    line-height:1.2;
+}
+.name-card-body .sub {
+    font-size:0.8rem;
+    color:var(--text-tertiary);
+    margin-top:4px;
+}
+.name-card-body .error-text {
+    color:var(--destructive);
+    font-size:0.8rem;
+}
+
+/* flag icon vertical alignment */
+.name-card-body .fi,
+.badge-region .fi,
+.map-country-label .fi,
+.detail-item .fi {
+    vertical-align: middle;
+    margin-right: 4px;
 }
 
 /* ═══ Main Card ═══ */
@@ -466,6 +546,7 @@ body {
 .map-header h3 { font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-tertiary); display:flex; align-items:center; gap:8px; }
 .map-header h3 i { color:var(--detail-card-header-icon); }
 .map-country-label { font-size:0.8rem; font-weight:600; padding:4px 12px; border-radius:20px; background:var(--badge-region-bg); color:var(--badge-region-text); white-space:nowrap; }
+.map-country-label .fi { margin-right: 4px; vertical-align: middle; }
 .map-wrapper { width:100%; max-height:420px; overflow:hidden; border-radius:var(--radius-sm); border:2px solid var(--border); background:var(--map-bg); transition:all 0.3s ease; }
 .map-wrapper svg { width:100%; height:auto; display:block; }
 .map-wrapper svg path { fill:var(--map-fill); stroke:var(--map-stroke); stroke-width:0.5; transition:fill 0.25s ease,stroke 0.25s ease; cursor:pointer; vector-effect:non-scaling-stroke; }
@@ -480,7 +561,7 @@ body {
 .dev-summary::-webkit-details-marker { display:none; }
 .dev-summary:hover { color:var(--accent); }
 .summary-chevron { font-size:0.8rem; transition:transform 0.3s ease; }
-.dev-details[open] .summary-chevron, .info-details[open] .summary-chevron { transform:rotate(180deg); }
+.dev-details[open] .summary-chevron, .info-details[open] .summary-chevron, .name-analysis-details[open] .summary-chevron { transform:rotate(180deg); }
 .dev-card { display:flex; flex-direction:column; align-items:center; text-align:center; gap:16px; padding:0 24px 24px 24px; }
 .dev-avatar { width:70px; height:70px; border-radius:50%; object-fit:cover; border:3px solid var(--accent); box-shadow:var(--shadow-md); background:var(--mono-bg); }
 .dev-info { display:flex; flex-direction:column; align-items:center; gap:6px; }
