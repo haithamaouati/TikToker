@@ -1,5 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   script.js — TikTok scraper, map, share, scroll, JSON import, avatar preview
+   script.js — TikTok scraper, map, share, scroll, JSON import,
+   avatar preview, name analysis (Genderize, Nationalize, Agify)
+   No emoji – only Font Awesome + flag-icons
    ═══════════════════════════════════════════════════════════════════════ */
 
 (function () {
@@ -31,6 +33,12 @@
     const mapWrapper       = document.getElementById('mapWrapper');
     const mapCountryLabel  = document.getElementById('mapCountryLabel');
     const scrollToggleBtn  = document.getElementById('scrollToggleBtn');
+
+    // Name Analysis
+    const nameAnalysisSection = document.getElementById('nameAnalysisSection');
+    const genderContent       = document.getElementById('genderContent');
+    const ageContent          = document.getElementById('ageContent');
+    const nationalityContent  = document.getElementById('nationalityContent');
 
     // Avatar preview modal
     const avatarModalOverlay   = document.getElementById('avatarModalOverlay');
@@ -83,7 +91,7 @@
         }
         try {
             svgDoc = await loadSVGMap('world.svg');
-            console.log('World map SVG loaded successfully.');
+            console.log('✅ World map SVG loaded successfully.');
         } catch (e) {
             console.warn('Could not load world.svg. Map feature will be unavailable.', e);
         }
@@ -220,6 +228,7 @@
         currentScrapedData = null;
         currentAvatarURL = null;
         currentUsername = null;
+        if (nameAnalysisSection) nameAnalysisSection.style.display = 'none';
         if (mapWrapper && svgRootElement) {
             const prev = mapWrapper.querySelectorAll('path.highlighted');
             prev.forEach(p => p.classList.remove('highlighted'));
@@ -435,6 +444,75 @@
     });
 
     // ═══════════════════════════════════════════
+    //  NAME ANALYSIS (Genderize, Nationalize, Agify)
+    // ═══════════════════════════════════════════
+
+    function extractFirstName(nickname) {
+        if (!nickname) return null;
+        const cleaned = nickname.replace(/[^a-zA-Z\s]/g, ' ').trim();
+        const parts = cleaned.split(/\s+/);
+        const first = parts[0];
+        if (first && first.length >= 2) return first;
+        return parts.length > 1 && parts[1].length >= 2 ? parts[1] : null;
+    }
+
+    function flagIcon(code) {
+        return `<span class="fi fi-${code.toLowerCase()}"></span>`;
+    }
+
+    async function analyzeName(nickname) {
+        const firstName = extractFirstName(nickname);
+        if (!firstName) {
+            if (nameAnalysisSection) nameAnalysisSection.style.display = 'none';
+            return;
+        }
+
+        if (nameAnalysisSection) nameAnalysisSection.style.display = '';
+        if (genderContent) genderContent.innerHTML = '<span class="loading-text">Analyzing...</span>';
+        if (ageContent) ageContent.innerHTML = '<span class="loading-text">Analyzing...</span>';
+        if (nationalityContent) nationalityContent.innerHTML = '<span class="loading-text">Analyzing...</span>';
+
+        const encodedName = encodeURIComponent(firstName);
+
+        const results = await Promise.allSettled([
+            fetch(`https://api.genderize.io?name=${encodedName}`).then(r => r.json()),
+            fetch(`https://api.agify.io?name=${encodedName}`).then(r => r.json()),
+            fetch(`https://api.nationalize.io?name=${encodedName}`).then(r => r.json())
+        ]);
+
+        // Gender
+        if (results[0].status === 'fulfilled' && results[0].value.gender) {
+            const g = results[0].value;
+            const pct = Math.round(g.probability * 100);
+            const icon = g.gender === 'male' ? '<i class="fa-solid fa-mars"></i>' : '<i class="fa-solid fa-venus"></i>';
+            if (genderContent) genderContent.innerHTML = `<span class="highlight">${icon} ${g.gender}</span><span class="sub">${pct}% probability</span>`;
+        } else {
+            if (genderContent) genderContent.innerHTML = '<span class="error-text">Unable to determine</span>';
+        }
+
+        // Age
+        if (results[1].status === 'fulfilled' && results[1].value.age) {
+            const a = results[1].value;
+            if (ageContent) ageContent.innerHTML = `<span class="highlight">${a.age} years</span><span class="sub">predicted age</span>`;
+        } else {
+            if (ageContent) ageContent.innerHTML = '<span class="error-text">Unable to determine</span>';
+        }
+
+        // Nationality
+        if (results[2].status === 'fulfilled' && results[2].value.country?.length) {
+            const top = results[2].value.country[0];
+            const country = getCountryByCode(top.country_id);
+            const pct = Math.round(top.probability * 100);
+            const display = country
+                ? `${flagIcon(top.country_id)} ${escapeHTML(country.name)}`
+                : top.country_id;
+            if (nationalityContent) nationalityContent.innerHTML = `<span class="highlight">${display}</span><span class="sub">${pct}% probability</span>`;
+        } else {
+            if (nationalityContent) nationalityContent.innerHTML = '<span class="error-text">Unable to determine</span>';
+        }
+    }
+
+    // ═══════════════════════════════════════════
     //  SVG MAP
     // ═══════════════════════════════════════════
 
@@ -457,12 +535,12 @@
                 if (country) {
                     path.setAttribute('data-country', country.name);
                     const titleEl = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-                    titleEl.textContent = `${country.emoji || ''} ${country.name}`;
+                    titleEl.textContent = country.name;
                     path.insertBefore(titleEl, path.firstChild);
                 }
             }
         });
-        console.log('SVG map injected.');
+        console.log('✅ SVG map injected.');
     }
 
     async function highlightAndZoomToCountry(regionCode) {
@@ -492,7 +570,9 @@
         if (targetPath) {
             targetPath.classList.add('highlighted');
             if (mapCountryLabel) {
-                mapCountryLabel.textContent = country ? `${country.emoji || ''} ${country.name}` : regionCode;
+                mapCountryLabel.innerHTML = country
+                    ? `${flagIcon(regionCode)} ${escapeHTML(country.name)}`
+                    : regionCode;
                 mapCountryLabel.style.display = '';
             }
             try {
@@ -510,7 +590,9 @@
             if (mapCard) setTimeout(() => mapCard.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400);
         } else {
             if (mapCountryLabel) {
-                mapCountryLabel.textContent = country ? `${country.emoji || ''} ${country.name} (not on map)` : `${regionCode} (not on map)`;
+                mapCountryLabel.innerHTML = country
+                    ? `${flagIcon(regionCode)} ${escapeHTML(country.name)} (not on map)`
+                    : `${regionCode} (not on map)`;
                 mapCountryLabel.style.display = '';
             }
         }
@@ -593,13 +675,31 @@
 
         badgeRow.innerHTML = '';
         const badges = [];
-        if (countryEntry) badges.push({ icon:'fa-solid fa-globe', text:`${countryEntry.emoji||''} ${escapeHTML(countryEntry.name)}`, cls:'badge-region' });
-        else if (user.region) badges.push({ icon:'fa-solid fa-globe', text:escapeHTML(user.region), cls:'badge-region' });
-        if (languageEntry) badges.push({ icon:'fa-solid fa-language', text:escapeHTML(languageEntry.name), cls:'badge-language' });
-        else if (user.language) badges.push({ icon:'fa-solid fa-language', text:escapeHTML(user.language.toUpperCase()), cls:'badge-language' });
-        if (user.verified === true) badges.push({ icon:'fa-solid fa-circle-check', text:'Verified', cls:'badge-verified' });
-        badges.push(user.privateAccount ? { icon:'fa-solid fa-lock', text:'Private', cls:'badge-private' } : { icon:'fa-solid fa-earth-americas', text:'Public', cls:'badge-public' });
-        if (user.secret) badges.push({ icon:'fa-solid fa-eye', text:'Secret', cls:'badge-secret' });
+        if (countryEntry) {
+            badges.push({
+                icon: 'fa-solid fa-globe',
+                text: `${flagIcon(user.region)} ${escapeHTML(countryEntry.name)}`,
+                cls: 'badge-region'
+            });
+        } else if (user.region) {
+            badges.push({ icon:'fa-solid fa-globe', text:escapeHTML(user.region), cls:'badge-region' });
+        }
+        if (languageEntry) {
+            badges.push({ icon:'fa-solid fa-language', text:escapeHTML(languageEntry.name), cls:'badge-language' });
+        } else if (user.language) {
+            badges.push({ icon:'fa-solid fa-language', text:escapeHTML(user.language.toUpperCase()), cls:'badge-language' });
+        }
+        if (user.verified === true) {
+            badges.push({ icon:'fa-solid fa-circle-check', text:'Verified', cls:'badge-verified' });
+        }
+        badges.push(
+            user.privateAccount
+                ? { icon:'fa-solid fa-lock', text:'Private', cls:'badge-private' }
+                : { icon:'fa-solid fa-earth-americas', text:'Public', cls:'badge-public' }
+        );
+        if (user.secret) {
+            badges.push({ icon:'fa-solid fa-eye', text:'Secret', cls:'badge-secret' });
+        }
         badges.forEach(b => {
             const span = document.createElement('span');
             span.className = 'badge ' + b.cls;
@@ -627,13 +727,13 @@
             { icon:'fa-solid fa-id-card',         label:'User ID',        value:user.id||'N/A', mono:true },
             { icon:'fa-solid fa-at',               label:'Unique ID',      value:user.uniqueId||'N/A' },
             { icon:'fa-solid fa-signature',        label:'Nickname',       value:user.nickname||'N/A' },
-            { icon:'fa-solid fa-location-dot',     label:'Region',         value:countryEntry ? `${countryEntry.emoji||''} ${countryEntry.name}` : (user.region||'N/A') },
+            { icon:'fa-solid fa-location-dot',     label:'Region',         value:countryEntry ? `${flagIcon(user.region)} ${escapeHTML(countryEntry.name)}` : (user.region||'N/A') },
             { icon:'fa-solid fa-language',         label:'Language',       value:languageEntry ? languageEntry.name : (user.language||'N/A') },
             { icon:'fa-solid fa-calendar-plus',    label:'Created',        value:formatUnixTimestamp(user.createTime) },
             { icon:'fa-solid fa-calendar-check',   label:'Nick Modified',  value:formatUnixTimestamp(user.nickNameModifyTime) },
-            { icon:'fa-solid fa-certificate',      label:'Verified',       value:user.verified?'Yes':'No' },
-            { icon:'fa-solid fa-shield-halved',    label:'Private',        value:user.privateAccount?'Yes':'No' },
-            { icon:'fa-solid fa-mask',             label:'Secret',         value:user.secret?'Yes':'No' },
+            { icon:'fa-solid fa-certificate',      label:'Verified',       value:user.verified ? '<i class="fa-solid fa-circle-check" style="color:var(--accent);"></i> Yes' : 'No' },
+            { icon:'fa-solid fa-shield-halved',    label:'Private',        value:user.privateAccount ? '<i class="fa-solid fa-lock" style="color:var(--accent);"></i> Yes' : 'No' },
+            { icon:'fa-solid fa-mask',             label:'Secret',         value:user.secret ? '<i class="fa-solid fa-eye" style="color:var(--accent);"></i> Yes' : 'No' },
             { icon:'fa-solid fa-fingerprint',      label:'secUid',         value:user.secUid||'N/A', mono:true },
         ];
         detailGrid.innerHTML = '';
@@ -641,13 +741,16 @@
             const item = document.createElement('div');
             item.className = 'detail-item';
             const valClass = d.mono ? 'detail-value mono' : 'detail-value';
-            item.innerHTML = `<i class="${d.icon} detail-icon"></i><div class="detail-content"><span class="detail-label">${d.label}</span><span class="${valClass}">${escapeHTML(String(d.value))}</span></div>`;
+            item.innerHTML = `<i class="${d.icon} detail-icon"></i><div class="detail-content"><span class="detail-label">${d.label}</span><span class="${valClass}">${d.value}</span></div>`;
             detailGrid.appendChild(item);
         });
 
         if (svgDoc && (!svgRootElement || mapWrapper.children.length === 0)) injectSVGMap();
         if (user.region) highlightAndZoomToCountry(user.region);
         showResults();
+
+        // Trigger name analysis
+        analyzeName(user.nickname);
     }
 
     // ═══════════════════════════════════════════
@@ -714,7 +817,6 @@
     btnDownload.addEventListener('click', () => { if (currentScrapedData) downloadJSON(currentScrapedData); });
     btnShare.addEventListener('click', copyShareLink);
 
-    // Import buttons (both the one always visible and the one inside results)
     function triggerImport() { importFileInput.click(); }
     btnImport.addEventListener('click', triggerImport);
     btnImportAlways.addEventListener('click', triggerImport);
