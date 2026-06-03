@@ -64,7 +64,43 @@
             </div>
         </details>
 
-        <!-- ═══ Input Card ═══ -->
+        <!-- ═══ TikTok URL Tracker ═══ -->
+        <details class="info-details" id="urlTrackerSection">
+            <summary class="info-summary">
+                <i class="fa-solid fa-magnifying-glass-location"></i> TikTok URL Tracker
+                <i class="fa-solid fa-chevron-down summary-chevron"></i>
+            </summary>
+            <div class="info-content">
+                <p style="margin-bottom:12px; font-size:0.85rem; color:var(--text-secondary);">
+                    Paste a TikTok share link that someone sent you, and we'll decode every parameter brick by brick.
+                </p>
+                <form id="urlTrackForm" autocomplete="off">
+                    <div class="form-group" style="margin-bottom:12px;">
+                        <div class="input-wrapper">
+                            <input
+                                type="text"
+                                id="shareLinkInput"
+                                placeholder="Paste TikTok share link here"
+                                aria-label="TikTok share link"
+                            >
+                        </div>
+                        <button type="submit" class="btn-scrape" id="trackBtn" title="Track URL" aria-label="Track URL">
+                            <span class="btn-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <span class="spinner-inline"></span>
+                        </button>
+                    </div>
+                </form>
+                <div class="status-message" id="trackStatusMessage" style="margin-bottom:12px;"></div>
+
+                <!-- Tracker Results: Populated by JS -->
+                <div class="url-tracker-results" id="urlTrackerResults" style="display:none;">
+                    <h3 class="card-heading"><i class="fa-solid fa-link"></i> Share Link Breakdown</h3>
+                    <div class="tracker-grid" id="trackerGrid"></div>
+                </div>
+            </div>
+        </details>
+
+        <!-- ═══ Input Card (Scraper) ═══ -->
         <div class="main-card" id="mainCard">
             <form id="scrapeForm" autocomplete="off">
                 <div class="form-group">
@@ -90,7 +126,7 @@
             <div class="status-message" id="statusMessage"></div>
         </div>
 
-        <!-- ═══ Results Container ═══ -->
+        <!-- ═══ Results Container (Scraper) ═══ -->
         <div class="results-container" id="resultsContainer">
 
             <!-- Profile Card -->
@@ -127,25 +163,22 @@
             <!-- Name Analysis Card -->
             <details class="name-analysis-details" id="nameAnalysisSection" style="display:none;">
                 <summary class="info-summary">
-                    <i class="fa-solid fa-fingerprint"></i> Name Analysis
+                    <i class="fa-solid fa-fingerprint"></i> Name Analysis (via Genderize/Nationalize/Agify)
                     <i class="fa-solid fa-chevron-down summary-chevron"></i>
                 </summary>
                 <div class="name-analysis-grid" id="nameAnalysisGrid">
-                    <!-- Gender Result -->
                     <div class="name-card" id="genderCard">
                         <div class="name-card-title"><i class="fa-solid fa-venus-mars"></i> Gender</div>
                         <div class="name-card-body" id="genderContent">
                             <span class="loading-text">Analyzing...</span>
                         </div>
                     </div>
-                    <!-- Age Result -->
                     <div class="name-card" id="ageCard">
                         <div class="name-card-title"><i class="fa-solid fa-cake-candles"></i> Age</div>
                         <div class="name-card-body" id="ageContent">
                             <span class="loading-text">Analyzing...</span>
                         </div>
                     </div>
-                    <!-- Nationality Result -->
                     <div class="name-card" id="nationalityCard">
                         <div class="name-card-title"><i class="fa-solid fa-flag"></i> Nationality</div>
                         <div class="name-card-body" id="nationalityContent">
@@ -192,7 +225,6 @@
                 <i class="fa-solid fa-code"></i> Developer & Tester
                 <i class="fa-solid fa-chevron-down summary-chevron"></i>
             </summary>
-            <!-- Haitham Aouati -->
             <div class="dev-card">
                 <img class="dev-avatar" src="https://raw.githubusercontent.com/haithamaouati/haithamaouati/refs/heads/main/avatar.png" alt="Haitham Aouati" loading="lazy">
                 <div class="dev-info">
@@ -204,9 +236,7 @@
                     </div>
                 </div>
             </div>
-            <!-- Separator -->
             <hr style="border: none; border-top: 1px solid var(--border-light); margin: 16px 24px;">
-            <!-- Reem Aouati -->
             <div class="dev-card" style="padding-top: 0;">
                 <img class="dev-avatar" src="https://raw.githubusercontent.com/reemaouati/reemaouati/refs/heads/main/avatar.png" alt="Reem Aouati" loading="lazy">
                 <div class="dev-info">
